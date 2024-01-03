@@ -1,0 +1,8 @@
+AuthUserFile /usr/local/apache/htaccess/gb_admin
+AuthGroupFile /dev/null
+AuthName "GuitarBattle.com v2.0 Admin Site"
+AuthType Basic
+
+<Limit GET POST>
+require valid-user
+</Limit>

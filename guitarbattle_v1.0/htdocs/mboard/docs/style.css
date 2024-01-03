@@ -1,0 +1,231 @@
+body {
+	color: #FFFFFF;
+	background: #000000;
+	font-family: Verdana;
+	font-size: 12px;
+	scrollbar-base-color: #000000;
+	scrollbar-face-color: #000000;
+	scrollbar-track-color: #333333;
+	scrollbar-arrow-color: #FFFFFF;
+	scrollbar-highlight-color: #000000;
+	scrollbar-3dlight-color: #FFFFFF;
+	scrollbar-shadow-color: #FFFFFF;
+	scrollbar-darkshadow-color: #000000;
+}
+
+b.alarm {
+	color: #FF0000;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: Bold;
+}
+
+b.large_alarm {
+	color: #FF0000;
+	font-family: Verdana;
+	font-size: 14px;
+	font-weight: Bold;
+}
+
+b.item {
+	color: #999999;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: Bold;
+}
+
+b.item_small {
+	color: #999999;
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: Normal;
+}
+
+b.white {
+	color: #FFFFFF;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: Bold;
+}
+
+b.normal {
+	color: #FFFFFF;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: Normal;
+}
+
+b.light {
+	color: #FFFFFF;
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: Normal;
+}
+
+td.mboard_title {
+	color: #FFFFFF;
+	background: #333333;
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: Bold;
+}
+
+td.mboard_heading {
+	color: #000000;
+	background: #BBBBBB;
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: Bold;
+}
+
+td.mboard_item {
+	color: #FFFFFF;
+	background: #202062;
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: Normal;
+}
+
+td.large {
+	color: #FFFFFF;
+	background: #000000;
+	font-family: Verdana;
+	font-size: 14px;
+	font-weight: Bold;
+}
+
+td.main {
+	color: #FFFFFF;
+	background: #000000;
+	font-family: Verdana;
+	font-size: 12px;
+}
+
+td.item_title {
+	color: #FFFFFF;
+	background: #333399;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: Bold;
+}
+
+td.item_dark {
+	color: #BBBBBB;
+	background: #333333;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: Bold;
+}
+
+td.item {
+	color: #999999;
+	background: #000000;
+	font-family: Verdana;
+	font-size: 12px;
+}
+
+td.item_light {
+	color: #EEEEEE;
+	background: #000000;
+	font-family: Verdana;
+	font-size: 12px;
+}
+
+td.news_item {
+	color: #99CCFF;
+	background: #000000;
+	font-family: Verdana;
+	font-size: 12px;
+}
+
+td.small_print {
+	color: #999999;
+	font-family: Verdana;
+	font-size: 10px;
+}
+
+td.post1 {
+	color: #66CC00;
+	background: #000000;
+	font-family: Verdana;
+	font-size: 10px;
+}
+
+td.post2 {
+	color: #339900;
+	background: #000000;
+	font-family: Verdana;
+	font-size: 10px;
+}
+
+a.misc:link, a.misc:visited, a.misc:active {
+	color: #CC9900;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: Normal;
+	text-decoration: None;
+}
+
+a.misc:hover {
+	color: #FFCC33;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: Normal;
+	text-decoration: Underline;
+}
+
+a.misc_small:link, a.misc_small:visited, a.misc_small:active {
+	color: #CC9900;
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: Normal;
+	text-decoration: None;
+}
+
+a.misc_small:hover {
+	color: #FFCC33;
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: Normal;
+	text-decoration: Underline;
+}
+
+a.small:link, a.small:visited, a.small:active {
+	color: #BBBBBB;
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: Bold;
+	text-decoration: None;
+}
+
+a.small:hover {
+	color: #FFFFFF;
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: Bold;
+	text-decoration: Underline;
+}
+
+a.mboard_heading:link, a.mboard_heading:visited, a.mboard_heading:active, a.mboard_heading:hover {
+	color: #000000;
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: Bold;
+	text-decoration: Underline;
+}
+
+a:link, a:visited, a:active {
+	color: #BBBBBB;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: Bold;
+	text-decoration: None;
+}
+
+a:hover {
+	color: #FFFFFF;
+	font-family: Verdana;
+	font-size: 12px;
+	font-weight: Bold;
+	text-decoration: Underline;
+}

@@ -1,0 +1,17 @@
+#!/bin/sh
+cd /home/rlarino/guitarbattle
+echo -n "Archiving stable version..."
+tar -zcvf archive/guitarbattle.com-`date +%m%d%y%H%M`.tgz htdocs > /dev/null 2>&1
+echo "Done."
+echo -n "Replacing stable branch with devel branch..."
+\rm -rf htdocs
+\cp -r devel htdocs
+\cp -f scripts/data.php htdocs/docs
+\cp -f scripts/data.php htdocs/mboard/docs
+echo "Done."
+echo -n "Making live copy read-only..."
+chown -R rlarino htdocs
+chown -R rlarino devel
+chmod -R 555 htdocs
+chmod -R 755 devel
+echo "Done."

@@ -1,0 +1,17 @@
+./include/data.php
+./include/templates/general/header.inc
+./include/templates/general/menu.inc
+./include/templates/general/poll.inc
+./include/templates/general/poll_results.inc
+./include/templates/home/home.inc
+./include/templates/mygb/viewMessage.php
+./include/templates/mygb/inbox.inc
+./include/templates/home_old/home.inc
+./include/templates/store/store.inc
+./admin/include/data.php
+./admin/massMail.php
+./chat/index.php
+./viewProfile.php
+./mygb/index.php
+./mboard/docs/header.inc
+./mboard/docs/data.php

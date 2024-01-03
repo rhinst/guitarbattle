@@ -1,0 +1,8 @@
+AuthUserFile /home/rlarino/guitarbattle/usage/.htpasswd
+AuthGroupFile /dev/null
+AuthName "GuitarBattle.com Usage"
+AuthType Basic
+
+<Limit GET POST>
+require valid-user
+</Limit>

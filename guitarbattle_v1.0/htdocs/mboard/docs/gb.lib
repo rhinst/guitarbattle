@@ -1,0 +1,48 @@
+<?
+if(!(isset($_GB_LIB))) {
+	$_GB_LIB = 1;
+
+
+include('vilw.lib');
+include('data.php');
+
+
+$news_cols = Array("id", "ts", "news");
+
+function readable_size($bytes) {
+       	$amount = $bytes;
+       	$suffix = "bytes";
+       	if($amount >= 1024) {
+               	$suffix = "KB";
+               	$amount = $amount / 1024;
+       	}
+
+       	if($amount >= 1024) {
+               	$suffix = "MB";
+               	$amount = $amount / 1024;
+       	}
+
+       	$amount = sprintf("%.2f", $amount);
+
+       	return($amount . " "  . $suffix);
+}
+
+	//Start The Session and check if logged in.
+	session_start();
+	$session_check = session_is_registered('guitar_battle_login');
+	if($session_check) {
+		$login_check = mysql_fetch_row(mysql_query("select count(id) from users where username='$current_user' and password='" . base64_encode($current_password) . "'"));
+		if($login_check[0] == 1) {
+			$login = 1;
+		}
+		else {
+			$login = 0;
+		}
+	}
+	else {
+		$login = 0;
+	}
+
+}
+
+?>

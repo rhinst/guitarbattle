@@ -1,0 +1,32 @@
+<?
+if(!(isset($_GB_LIB))) {
+	$_GB_LIB = 1;
+
+
+include('vilw.lib');
+include('data.php');
+
+
+$news_cols = Array("id", "ts", "news");
+
+function readable_size($bytes) {
+       	$amount = $bytes;
+       	$suffix = "bytes";
+       	if($amount >= 1024) {
+               	$suffix = "KB";
+               	$amount = $amount / 1024;
+       	}
+
+       	if($amount >= 1024) {
+               	$suffix = "MB";
+               	$amount = $amount / 1024;
+       	}
+
+       	$amount = sprintf("%.2f", $amount);
+
+       	return($amount . " "  . $suffix);
+}
+
+}
+
+?>

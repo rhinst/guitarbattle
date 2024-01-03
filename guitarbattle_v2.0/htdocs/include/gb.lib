@@ -1,0 +1,746 @@
+<?
+if(!(isset($_GB_LIB))) {
+	$_GB_LIB = 1;
+
+include('config.inc');
+
+include('vilw.lib');
+include('data.php');
+
+class mp3_info {
+	var $size;
+	var $mpeg_version;
+	var $mpeg_layer;
+	var $bitrate;
+	var $sample_rate;
+	var $channel_mode;
+};
+
+function get_mp3_info($song) {
+
+	$mp3_info = new mp3_info();
+
+	$song_contents = fread(fopen($song, "r"), filesize($song));
+	$mp3_info->size  = strlen($song_contents);
+	$frame_sync_mask = Array(0xFF, 0xE0);
+	$offset = -1;
+	$chunk_size = ($mp3_info->size < 4096)?($mp3_info->size):(4096);
+	for($i = 0; $i < $chunk_size; $i++) {
+		if(((ord($song_contents[$i]) & $frame_sync_mask[0]) == $frame_sync_mask[0]) && ((ord($song_contents[$i+1]) & $frame_sync_mask[1]) == $frame_sync_mask[1])) {
+			$offset = $i;
+			break;
+		}
+	}
+	if($offset == -1) {
+		return(false);
+	}
+
+	$frame_header = substr($song_contents, $offset, 4);
+		
+	$version_mask = 0x18;
+	$version_bits = (ord($frame_header[1]) & $version_mask);
+	switch($version_bits) {
+	case 0x00:
+		$mp3_info->mpeg_version = 2.5;
+		break;
+	case 0x08:
+		$mp3_info->mpeg_version = 0;
+		break;
+	case 0x10:
+		$mp3_info->mpeg_version = 2;
+		break;
+	case 0x18:
+		$mp3_info->mpeg_version = 1;
+		break;
+	}
+	$layer_mask = 0x06;
+	$layer_bits = (ord($frame_header[1]) & $layer_mask);
+	switch($layer_bits) {
+	case 0x00:
+		$mp3_info->mpeg_layer = 0;
+		break;
+	case 0x02:
+		$mp3_info->mpeg_layer = 3;
+		break;
+	case 0x04:
+		$mp3_info->mpeg_layer = 2;
+		break;
+	case 0x06:
+		$mp3_info->mpeg_layer = 1;
+		break;
+	}
+	$bitrate_matrix = Array(Array(  0,   0,   0,   0,   0,   0),
+				Array( 32,  32,  32,  32,   8,   8),
+				Array( 64,  48,  40,  48,  16,  16),
+				Array( 96,  56,  48,  56,  24,  24),
+				Array(128,  64,  56,  64,  32,  32),
+				Array(160,  80,  64,  80,  40,  40),
+				Array(192,  96,  80,  96,  48,  48),
+				Array(224, 112,  96, 112,  56,  56),
+				Array(256, 128, 112, 128,  64,  64),
+				Array(288, 160, 128, 144,  80,  80),
+				Array(320, 192, 160, 160,  96,  96),
+				Array(352, 224, 192, 176, 112, 112),
+				Array(384, 256, 224, 192, 128, 128),
+				Array(416, 320, 256, 224, 144, 144),
+				Array(448, 384, 320, 256, 160, 160),
+				Array( -1,  -1,  -1,  -1,  -1,  -1));
+				
+	$bitrate_mask = 0xF0;
+	$bitrate_bits = (ord($frame_header[2]) & $bitrate_mask);
+	if($mp3_info->mpeg_version == 1)  {
+		$mp3_info->bitrate = $bitrate_matrix[$bitrate_bits / 16][$mp3_info->mpeg_layer - 1];
+	}
+	else {
+		$mp3_info->bitrate = $bitrate_matrix[$bitrate_bits / 16][$mp3_info->mpeg_layer + 2];
+	}
+
+	$sample_rate_matrix = Array(	Array(44100, 22050, 11025),
+					Array(48000, 24000, 12000),
+					Array(32000, 16000,  8000),
+					Array(   -1,    -1,    -1));
+	$sample_rate_mask = 0x0C;
+	$sample_rate_bits = (ord($frame_header[2]) & $sampe_rate_mask);
+	if(($mp3_info->mpeg_version == 1) || ($mp3_info->mpeg_version == 2)) {
+		$mp3_info->sample_rate = $sample_rate_matrix[$sample_rate_bits / 4][$mp3_info->mpeg_version - 1];
+	}
+	else {
+		$mp3_info->sample_rate = $sample_rate_matrix[$sample_rate_bits / 4][2];
+	}
+	$channel_mask = 0xC0;
+	$channel_bits = (ord($frame_header[3]) & $channel_mask);
+	switch($channel_bits) {
+	case 0x00:
+		$mp3_info->channel_mode = "Stereo";
+		break;
+	case 0x40:
+		$mp3_info->channel_mode = "Joint Stereo";
+		break;
+	case 0x80:
+		$mp3_info->channel_mode = "Dual Channel Mono";
+		break;
+	case 0xC0:
+		$mp3_info->channel_mode = "Single Channel Mono";
+		break;
+	}
+
+	return($mp3_info);
+}
+
+function zero_pad($number, $length) {
+	$len = strlen($number);
+	$tmp = $number;
+	for($i=0; $i<($length - $len); $i++) {
+		$tmp = "0" . $tmp;	
+	}
+	return($tmp);
+}
+
+function init() {
+	global $db;
+	global $genres_cols, $genres_table;
+	global $ranks_cols, $ranks_table;
+	global $genre_names, $rank_names;
+
+	$ar = vilw_result_array(vilw_query(vilw_sql_select($genres_cols, $genres_table, "order by name asc")));
+	$genre_names = Array();
+	foreach($ar as $genre) {
+		vilw_result_globalize($genres_cols, $genre, "genre_");
+		$genre_names[$GLOBALS["genre_id"]] = $GLOBALS["genre_name"];
+	}
+	$ar = vilw_result_array(vilw_query(vilw_sql_select($ranks_cols, $ranks_table, "order by num_battles, score asc")));
+	$rank_names = Array();
+	foreach($ar as $rank) {
+		vilw_result_globalize($ranks_cols, $rank, "rank_");
+		$rank_names[$GLOBALS["rank_id"]] = $GLOBALS["rank_name"];
+	}
+}
+
+function calculate_rank($num_battles, $score_sum) {
+	global $ranks_cols;
+	
+	$ranks = get_ranks();
+	$avgScore = 0;
+	if($num_battles > 0) {
+		$avgScore = $score_sum / $num_battles;
+	}
+	$newRank = "";
+	foreach($ranks as $rank) {
+		vilw_result_globalize($ranks_cols, $rank, "rank_");
+		if(($num_battles >= $GLOBALS["rank_num_battles"]) && ($avgScore >= $GLOBALS["rank_score"])) {
+			$newRank = $GLOBALS["rank_name"];
+		}
+		else {
+			return($newRank);
+		}
+	}
+	return($newRank);
+}
+
+function get_voter_list($battle_id) {
+	return(vilw_result_array(vilw_query("select distinct voter from votes where battle_id='" . $battle_id . "'")));
+}
+
+function get_rank($username) {
+	global $users_table;
+
+	$res = vilw_query("select rank from " . $users_table . " where username='" . $username . "'");
+	if(!mysql_num_rows($res)) {
+		return("");
+	}
+	return(mysql_result($res, 0, 'rank'));
+}
+
+function get_profile_info($username) {
+	global $profiles_cols, $profiles_table;
+
+	$res = vilw_query(vilw_sql_select($profiles_cols, $profiles_table, "where username='" . $username . "'"));
+	$row = mysql_fetch_row($res);
+	return($row);
+}
+
+function mysql_datetime_printable($ts) {
+	return(substr($ts, 5, 2) . "/" . substr($ts, 8, 2) . "/" . substr($ts, 0, 4) . " " . substr($ts, 11, 2) . ":" . substr($ts, 14, 2));
+}
+
+function mysql_ts_printable($ts) {
+	return(substr($ts, 4, 2) . "/"  . substr($ts, 6, 2) . "/" . substr($ts, 0,4) . " " . substr($ts, 8, 2) . ":" . substr($ts, 10, 2));
+}
+
+function send_challenge_message($to, $from, $battle_id) {
+	$subject = "You have recieved a challenge.";
+	$body = $from . " has challenged you to a battle. Please check your challenge listings at the 'My GB' section of the site and either accept or decline the challenge.";
+	send_message($from, $to, $subject, $body);
+}
+
+function send_collab_message($to, $from, $battle_id) {
+	$subject = "You have recieved a collaboration request.";
+	$body = $from . " has requested a collaboration. Please check your collaboration listings at the 'My GB' section of the site and either accept or decline this collaboration.";
+	send_message($from, $to, $subject, $body);
+}
+
+function send_collab_response($to, $from, $battle_id, $response) {
+	$subject = $from . " has responded to your collaboration request.";
+	$body = $from . " has " . $response . " your invitation to collaborate.";
+	send_message($from, $to, $subject, $body);
+}
+
+function send_challenge_response($to, $from, $battle_id, $response) {
+	$subject = $from . " has responded to your challenge.";
+	$body = $from . " has " . $response . " your invitation to battle.";
+	send_message($from, $to, $subject, $body);
+}
+
+function send_message($from, $to, $subject, $body) {
+	global $messages_cols, $messages_table;
+
+	$GLOBALS["from_user"] = $from;
+	$GLOBALS["to_user"] = $to;
+	$GLOBALS["subject"] = $subject;
+	$GLOBALS["body"] = $body;
+	$GLOBALS["new"] = "1";
+	$GLOBALS["unread"] = "1";
+	vilw_query(vilw_sql_insert($messages_cols, $messages_table));
+}
+
+function check_vote_bank_quota($username) {
+	global $users_table, $vote_bank_quota;
+
+	$res = vilw_query("select vote_bank from " . $users_table . " where username='" . $username ."'");
+	$vote_bank = mysql_result($res, 0, 'vote_bank');
+	return($vote_bank >= $vote_bank_quota);	
+	
+}
+
+function reset_vote_bank($username) {
+	global $users_table;
+
+	vilw_query("update " . $users_table . " set vote_bank=0 where username='" . $username . "'");
+}
+
+function count_vote($voter) {
+	global $users_table;
+
+	vilw_query("update " . $users_table . " set vote_bank=vote_bank+1 where username='" . $voter . "'");
+}
+
+function get_votes_cols($voting_categories) {
+	global $voting_categories_cols;
+
+	$votes_cols = Array("battle_id", "voter", "competitor");
+	foreach($voting_categories as $cat) {
+		vilw_result_globalize($voting_categories_cols, $cat,  "cat_");
+		$votes_cols[] = "cat_" . $GLOBALS["cat_id"];
+	}
+
+	return($votes_cols);
+}
+
+function judge_already_voted($username, $battle_id) {
+	global $decisions_table;
+
+	$res = vilw_query("select 1 from "  . $decisions_table . " where battle_id = '" . $battle_id . "' and judge = '" . $username . "'");
+	return(mysql_num_rows($res) > 0);
+}
+
+function user_already_voted($username, $battle_id) {
+	global $votes_table;
+
+	$res = vilw_query("select 1 from "  . $votes_table . " where battle_id = '" . $battle_id . "' and voter = '" . $username . "'");
+	return(mysql_num_rows($res) > 0);
+}
+
+function voting_scale($name, $default = "", $extra = "") {
+	global $min_vote, $max_vote;
+
+	$scores = Array(" ");
+	for($i = $min_vote; $i <= $max_vote; $i++) {
+		$scores[] = "$i";
+	}
+	vilw_select($name, $scores, $default, $extra, "", true);
+}
+
+function poll_already_voted($poll_id, $username) {
+	global $poll_answers_cols, $poll_answers_table;
+
+	$res = vilw_query(vilw_sql_select($poll_answers_cols, $poll_answers_table, "where username='" . $username . "'"));
+	return(mysql_num_rows($res) > 0);
+}
+
+function get_polls() {
+	global $poll_questions_cols, $poll_questions_table;
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($poll_questions_cols, $poll_questions_table, "order by date desc"))));
+}
+
+function get_current_poll() {
+	global $poll_questions_table, $poll_questions_cols;
+
+	$res = vilw_query(vilw_sql_select($poll_questions_cols, $poll_questions_table, "where active='1' order by date desc limit 1"));
+	$row = mysql_fetch_row($res);
+
+	return($row);
+}
+
+function get_ranks() {
+	global $ranks_cols, $ranks_table;
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($ranks_cols, $ranks_table, "order by num_battles, score asc"))));
+}
+
+function get_links() {
+	global $links_cols, $links_table;
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($links_cols, $links_table))));
+}
+
+function get_voting_categories() {
+	global $voting_categories_cols, $voting_categories_table;
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($voting_categories_cols, $voting_categories_table))));
+}
+
+function check_inbox($username) {
+	global $messages_cols, $messages_table;
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($messages_cols, $messages_table, "where to_user='" . $username . "' order by timestamp desc"))));
+}
+
+function get_new_message_count($username) {
+	global $messages_cols, $messages_table;
+
+	$res = vilw_query(vilw_sql_select($messages_cols, $messages_table, "where to_user='" . $username . "' and new='1'"));
+	vilw_query("update " . $messages_table . " set new='0' where to_user='" . $username . "'");
+	return(mysql_num_rows($res));
+}
+
+function get_message($id) {
+	global $messages_cols, $messages_table;
+	
+	$res = vilw_query(vilw_sql_select($messages_cols, $messages_table, "where id='" . $id . "'"));
+	$row = mysql_fetch_row($res);
+	
+	return($row);
+}
+
+function get_rank_name($rank_id) {
+	global $rank_names;
+
+	return($rank_names[$rank_id]);
+}
+
+function get_genre_name($genre_id) {
+	global $genre_names;
+
+	return($genre_names[$genre_id]);
+}
+
+function get_news($limit = "") {
+	global $news_cols, $news_table;
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($news_cols, $news_table, "order by id desc " . (($limit)?("limit " . $limit):(""))))));
+}
+
+function get_categories() {
+	global $categories_cols, $categories_table;
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($categories_cols, $categories_table, "order by id asc"))));	
+}
+
+function get_genres() {
+	global $genres_cols, $genres_table;
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($genres_cols, $genres_table, "order by name asc"))));	
+}
+
+function user_exists($username) {
+	global $users_cols, $users_table;
+
+	$res = vilw_query(vilw_sql_select($users_cols, $users_table, "where username='" . $username . "'"));
+	return(mysql_num_rows($res) == 1);
+}
+
+function get_user_battle_count($username) {
+	global $battles_cols, $battles_table;
+
+	$res = vilw_query(vilw_sql_select($battles_cols, $battles_table, "where (user1='" . $username ."' or user2='" . $username ."')"));
+	return(mysql_num_rows($res));
+}
+
+function get_user_current_battle_count($username) {
+	global $battles_cols, $battles_table;
+
+	$res = vilw_query(vilw_sql_select($battles_cols, $battles_table, "where (user1='" . $username ."' or user2='" . $username ."') and winner = ''"));
+	return(mysql_num_rows($res));
+}
+
+function get_user_list($username_like = "", $eml_like = "") {
+	global $users_cols, $users_table;
+
+	$wherecl = "where 1=1";
+	$wherecl .= ($username_like)?(" and username like '%" . $username_like . "%'"):("");
+	$wherecl .= ($eml_like)?(" and eml_addr like '%" . $eml_like . "%'"):("");
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($users_cols, $users_table, $wherecl))));
+}
+
+function get_battle_list($status = "", $genre = "", $username = "", $vote_check = "", $limit = "", $order_by = "id", $order = "desc", $active = 1, $hide = 0) {
+	global $battles_cols, $battles_table, $votes_cols, $votes_table, $authenticated_user;
+
+	$wherecl = "where 1=1";
+	if($vote_check == "vote") {
+		$query = "select battle_id from " . $votes_table . " where voter='" . $authenticated_user . "'";
+		$battle_ids = vilw_result_array(vilw_query($query));
+		if(count($battle_ids) > 0) {
+			$wherecl .= " and id in (";
+			while($battle_id = current($battle_ids)) {
+				$wherecl .= $battle_id;
+				if(next($battle_ids)) {
+					$wherecl .= ",";
+				}
+			}
+			$wherecl .= ")";
+		}
+		$status = "in-progress";
+	}
+	elseif($vote_check == "novote") {
+		$query = "select battle_id from " . $votes_table . " where voter='" . $authenticated_user . "'";
+                $battle_ids = vilw_result_array(vilw_query($query));
+                if(count($battle_ids) > 0) {
+                        $wherecl .= " and id not in (";
+                        while($battle_id = current($battle_ids)) {
+                                $wherecl .= $battle_id;
+                                if(next($battle_ids)) {
+                                        $wherecl .= ",";
+                                }
+                        }
+                        $wherecl .= ")";
+                }
+		$status = "in-progress";
+	}
+
+	switch($status) {
+	case "open":
+		$wherecl .= " and user2 = ''";	
+		break;
+	case "complete":
+		$wherecl .= " and winner != ''";
+		break;
+	case "in-progress":
+		$wherecl .= " and user2 != '' and winner = ''";
+		break;
+	case "not-complete":
+		$wherecl .= " and winner = ''";
+		break;
+	}
+	$wherecl .= ($genre == "")?(""):(" and genre='" . $genre . "'");
+	$wherecl .= " and (user1 like '%" . $username . "%' or user2 like '%" . $username . "%' or collab1 like '%" . $username . "%' or collab2 like '%" . $username . "%')";
+	$wherecl .= " and active = '" . $active . "'";
+	$wherecl .= " and hide = '" . $hide . "'";
+	$wherecl .= " order by " . $order_by . " " . $order;
+	$wherecl .= ($limit == "")?(""):(" limit " . $limit);
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($battles_cols, $battles_table, $wherecl))));
+}
+
+function get_battle_info($battle_id) {
+	global $battles_cols, $battles_table;
+
+	$res = vilw_query(vilw_sql_select($battles_cols, $battles_table, "where id=" . $battle_id));
+	if(!($row = mysql_fetch_row($res))) {
+		return(false);
+	}
+
+	return($row);
+}
+
+function is_judge($username) {
+	Global $users_cols, $users_table;
+
+	$res = vilw_query(vilw_sql_select($users_cols, $users_table, "where username='" . $username . "' and judge='1'"));
+
+	return((mysql_num_rows($res) == 1));
+}
+
+function get_comments($battle_id) {
+	global $comments_cols, $comments_table;
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($comments_cols, $comments_table, "where battle_id='" . $battle_id . "' order by id asc"))));
+}
+
+function get_user_info($username) {
+	global $users_cols, $users_table;
+
+	$res = vilw_query(vilw_sql_select($users_cols, $users_table, "where username='" . $username . "'"));
+	if(!($row = mysql_fetch_row($res))) {
+		return false;
+	}
+
+	return($row);
+}
+
+function get_user_info_by_email($email) {
+	global $users_cols, $users_table;
+
+	$res = vilw_query(vilw_sql_select($users_cols, $users_table, "where eml_addr='" . $email . "'"));
+	if(!($row = mysql_fetch_row($res))) {
+		return false;
+	}
+
+	return($row);
+}
+
+function get_profile($username) {
+	global $profiles_cols, $profiles_table;
+
+	$res = vilw_query(vilw_sql_select($profiles_cols, $profiles_table, "where username='" . $username . "'"));
+	if(!($row = mysql_fetch_row($res))) {
+		return false;
+	}
+
+	return($row);
+}
+
+function get_random_user_profile() {
+	global $profiles_cols, $profiles_table;
+
+	$res = vilw_query(vilw_sql_select($profiles_cols, $profiles_table, "where icon > 0 order by rand() limit 1"));
+	//Discard first result.
+	$res = vilw_query(vilw_sql_select($profiles_cols, $profiles_table, "where icon > 0 order by rand() limit 1"));
+	if(!($row = mysql_fetch_row($res))) {
+		return false;
+	}
+
+	return($row);
+}
+
+function cancel_user($username) {
+	global $users_table, $profiles_table;
+
+	vilw_query(vilw_sql_delete($profiles_table, "where username='" . $username . "'"));
+	vilw_query(vilw_sql_delete($users_table, "where username='" . $username . "'"));
+}
+
+function delete_battle($battle_id) {
+	global $GLOBALS;
+	global $battles_cols, $battles_table;
+	global $mp3s_table, $comments_table, $votes_table, $users_table;
+	global $vote_bank_quota;
+
+	$res = vilw_query(vilw_sql_select($battles_cols, $battles_table, "where id='" . $battles_id . "'"));
+	$row = mysql_fetch_row($res);
+	vilw_result_globalize($battles_cols, $row, "del_battle_");	
+	vilw_query(vilw_sql_delete($mp3s_table, "where id='" . $GLOBALS["del_battle_file1"] . "'"));
+	vilw_query(vilw_sql_delete($mp3s_table, "where id='" . $GLOBALS["del_battle_file2"] . "'"));
+	vilw_query(vilw_sql_delete($votes_table, "where battle_id='" . $battle_id . "'"));
+	vilw_query(vilw_sql_delete($battles_table, "where id='" . $battle_id . "'"));
+	vilw_query(vilw_sql_delete($comments_table, "where battle_id='" . $battle_id . "'"));
+
+	// Give participants their vote bank points back
+	vilw_query("update " . $users_table . " set vote_bank = (vote_bank + " . $vote_bank_quota . ") where username='" . $GLOBALS["del_battle_user1"] . "'");
+	print("update " . $users_table . " set vote_bank = (vote_bank + " . $vote_bank_quota . ") where username='" . $GLOBALS["del_battle_user1"] . "'");
+	if($GLOBALS["del_battle_user2"] != '') {
+		vilw_query("update " . $users_table . " set vote_bank = (vote_bank + " . $vote_bank_quota . ") where username='" . $GLOBALS["del_battle_user2"] . "'");
+		print("update " . $users_table . " set vote_bank = (vote_bank + " . $vote_bank_quota . ") where username='" . $GLOBALS["del_battle_user2"] . "'");
+	}
+}
+
+function delete_genre($genre_id) {
+	global $genres_table;
+
+	vilw_query(vilw_sql_delete($genres_table, "where id='" . $genre_id . "'"));
+}
+
+function gb_mail($to, $subject, $message, $from_addr, $from_name = "") {
+	return(mail($to, $subject, $message, "From: " . $from_name . "<" . $from_addr . ">"));
+}
+
+function readable_size($bytes) {
+       	$amount = $bytes;
+       	$suffix = "bytes";
+       	if($amount >= 1024) {
+               	$suffix = "KB";
+               	$amount = $amount / 1024;
+       	}
+
+       	if($amount >= 1024) {
+               	$suffix = "MB";
+               	$amount = $amount / 1024;
+       	}
+
+       	$amount = sprintf("%.2f", $amount);
+
+       	return($amount . " "  . $suffix);
+}
+
+function readable_time($seconds) {
+	$amount = $seconds;
+	$minutes = floor($seconds / 60);
+	$amount -= ($minutes * 60);
+	if($amount < 10) {
+		$amount = "0" . $amount;
+	}
+	return($minutes . ":" . $amount);
+}
+
+function require_login() {
+	global $baseURL, $HTTP_SESSION_VARS;
+	if(!session_is_registered("authenticated_user")) {
+		$HTTP_SESSION_VARS["goto"] = urlencode($GLOBALS["REQUEST_URI"]);
+		header("location: " . $baseURL . "/login.php");
+		exit;
+	}
+}
+
+function require_judge() {
+	global $baseURL, $authenticated_user;
+	global $users_cols, $users_table;
+
+	$res = vilw_query(vilw_sql_select($users_cols, $users_table, "where username='" . $authenticated_user . "' and (judge='1' or alt_judge='1')"));
+	if(mysql_num_rows($res) != 1) {
+		header("location: " . $baseURL);
+		exit;
+	}
+}
+
+function check_login($username, $password) {
+	global $HTTP_SESSION_VARS, $REMOTE_ADDR, $REQUEST_URI, $baseURL;
+	global $logins_cols, $logins_table;
+	global $users_table, $users_cols;
+	global $login_error;
+
+	$res = vilw_query(vilw_sql_select($users_cols, $users_table, "where username like binary '" . $username . "' and password like binary '" . base64_encode($password) . "'"));
+	if(mysql_num_rows($res) == 1) {
+		if(!check_login_interval($username, $REMOTE_ADDR)) {
+			$login_error = "Invalid login.";
+			return(false);
+		}
+		session_register("authenticated_user");
+		$HTTP_SESSION_VARS["authenticated_user"] = $username;
+		vilw_query("replace into " . $logins_table . " (username, ip_addr, login_ts) values ('" . $username . "','" . $REMOTE_ADDR . "', now())");
+		if(get_preference("embed_chat") == 0) {
+			header("location: " . $HTTP_SESSION_VARS["goto"]);
+		}
+		else {
+			header("location: " . $baseURL . "/frames.php");
+		}
+		exit;
+	}
+	$login_error = "Invalid Username/Password";
+	return false;
+}
+
+function get_preference($pref_name) {
+	global $preferences_table, $HTTP_SESSION_VARS;
+
+	if(session_is_registered("authenticated_user")) {
+
+		if(session_is_registered($pref_name)) {
+			return($HTTP_SESSION_VARS[$pref_name]);
+		}
+
+		$res = vilw_query("select " . $pref_name . " as pref from " . $preferences_table . " where username='" . $HTTP_SESSION_VARS["authenticated_user"] . "'");
+		if(mysql_num_rows($res) == 1) {
+			session_register($pref_name);
+			$HTTP_SESSION_VARS[$pref_name] = mysql_result($res, 0, 'pref');
+			return($HTTP_SESSION_VARS[$pref_name]);
+		}
+		else {
+			vilw_query("insert into " . $preferences_table . " (username) values ('" . $HTTP_SESSION_VARS["authenticated_user"] . "')");
+			$res = vilw_query("select " . $pref_name . " as pref from " . $preferences_table . " where username='" . $HTTP_SESSION_VARS["authenticated_user"] . "'");
+			if(mysql_num_rows($res) == 1) {
+				$HTTP_SESSION_VARS[$pref_name] = mysql_result($res, 0, 'pref');
+				return($HTTP_SESSION_VARS[$pref_name]);
+			}
+		}
+	}
+
+	return("");
+}
+
+function check_login_interval($username, $ip_address) {
+	global $logins_cols, $logins_table;
+	global $login_interval;
+
+	$res = vilw_query(vilw_sql_select($logins_cols, $logins_table, "where ip_addr = '" . $ip_address . "' and username != '" . $username . "' and (login_ts >= (now() - INTERVAL " . $login_interval . " MINUTE))"));
+	if(mysql_num_rows($res) > 0) {
+		return(false);
+	}
+	return(true);
+}
+
+function get_current_logins() {
+	global $logins_cols, $logins_table;
+
+	return(vilw_result_array(vilw_query(vilw_sql_select($logins_cols, $logins_table, "where ((last_active + INTERVAL 5 MINUTE) >= now())"))));
+}
+
+init();
+
+if($REMOTE_ADDR) {
+	//Start The Session and check if logged in.
+	session_set_cookie_params (0 , "", "." . $domainName, false);
+	session_start();
+	
+	if(!session_is_registered("goto")) {
+		session_register("goto");
+	}
+	if(!$HTTP_SESSION_VARS["goto"]) {
+		$HTTP_SESSION_VARS["goto"] = $REQUEST_URI;
+	}
+	$authenticated_user = $HTTP_SESSION_VARS["authenticated_user"];
+	if(($action != "logout") && (!session_is_registered("authenticated_user")) && isset($login_username)) {
+		check_login($login_username, $login_password);
+	}
+	else if($action == "logout") {
+		session_unregister("authenticated_user");
+		header("location: " . $baseURL . "/index.php");
+	}
+	else {
+		vilw_query("update logins set last_active=now() where username='" . $authenticated_user . "'");
+	}
+}
+
+}
+
+?>

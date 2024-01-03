@@ -1,0 +1,43 @@
+<?php
+
+$convertpath = "/usr/bin/X11/convert";
+
+function showResizedImage($db, $fileid, $width, $height, $forcedimensions = false) {
+
+	$sql = "select contents, mimetype, name from images where id='" . $fileid . "'";	
+	$res = mysql_query($sql, $db);
+	$dbimg = mysql_fetch_row($res);
+
+	$contents = getResizedContents($dbimg[0], $width, $height, $forcedimensions);	
+	
+	header( "Content-type: $row[1]" );
+	header( "Content-Disposition: inline; filename=$row[2]" );
+	print $contents;
+}
+
+function getResizedContents($contents, $width, $height, $forcedimensions = false) {
+	
+	global $convertpath;
+
+	$tempfile = tempnam("/tmp", "img");
+	$fh = fopen($tempfile, "w");
+	fwrite($fh, $contents); 	
+	fclose($fh);
+
+	$destfile = tempnam("/tmp", "img");
+	$execstring = $convertpath . " -geometry " . $width . "x" . $height;
+	if($forcedimensions != 0) {
+		$execstring .= "!";
+	}
+	$execstring .= " " . $tempfile . " " . $destfile;	
+	$res = exec($execstring);
+
+	$fh = fopen($destfile, "r");
+	$newcontents = fread($fh, filesize($destfile));	
+	fclose($fh);	
+
+	return($newcontents);
+}
+
+
+?>

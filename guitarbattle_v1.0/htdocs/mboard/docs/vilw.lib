@@ -1,0 +1,1343 @@
+<?
+
+if (!$_VILW_LIB) {
+$_VILW_LIB = 1;
+
+$VILW_FORM_SINGLECOL = 0;
+$VILW_FORM_TWOCOL = 1;
+
+$VILW_CONVERT_PATH = "/usr/local/bin/convert";
+
+
+$_vilw_months = Array();
+for($i=1; $i<=12; $i++) {
+	$_vilw_months[] = Array($i, date("M", mktime(1,1,1,$i,1,2000)));
+}
+
+$_vilw_days = Array();
+for($i=1; $i<=31; $i++) {
+	$_vilw_days[] = Array($i, $i);
+}
+
+$_vilw_countries = Array(
+	Array('US', 'United States'),
+	Array('AF', 'Afghanistan'),
+	Array('AL', 'Albania'),
+	Array('DZ', 'Algeria'),
+	Array('AS', 'American Samoa'),
+	Array('AD', 'Andorra'),
+	Array('AO', 'Angola'),
+	Array('AI', 'Anguilla'),
+	Array('AQ', 'Antarctica'),
+	Array('AG', 'Antigua and Barbuda'),
+	Array('AR', 'Argentina'),
+	Array('AM', 'Armenia'),
+	Array('AW', 'Aruba'),
+	Array('AU', 'Australia'),
+	Array('AT', 'Austria'),
+	Array('AZ', 'Azerbaijan'),
+	Array('BS', 'Bahamas'),
+	Array('BH', 'Bahrain'),
+	Array('BD', 'Bangladesh'),
+	Array('BB', 'Barbados'),
+	Array('BY', 'Belarus'),
+	Array('BE', 'Belgium'),
+	Array('BZ', 'Belize'),
+	Array('BJ', 'Benin'),
+	Array('BM', 'Bermuda'),
+	Array('BT', 'Bhutan'),
+	Array('BO', 'Bolivia'),
+	Array('BA', 'Bosnia and Herzegowina'),
+	Array('BW', 'Botswana'),
+	Array('BV', 'Bouvet Island'),
+	Array('BR', 'Brazil'),
+	Array('IO', 'British Indian Ocean Territory'),
+	Array('BN', 'Brunei Darussalam'),
+	Array('BG', 'Bulgaria'),
+	Array('BF', 'Burkina Faso'),
+	Array('BI', 'Burundi'),
+	Array('KH', 'Cambodia'),
+	Array('CM', 'Cameroon'),
+	Array('CA', 'Canada'),
+	Array('CV', 'Cape Verde'),
+	Array('KY', 'Cayman Islands'),
+	Array('CF', 'Central African Republic'),
+	Array('TD', 'Chad'),
+	Array('CL', 'Chile'),
+	Array('CN', 'China'),
+	Array('CX', 'Christmas Island'),
+	Array('CC', 'Cocos (Keeling) Islands'),
+	Array('CO', 'Colombia'),
+	Array('KM', 'Comoros'),
+	Array('CG', 'Congo'),
+	Array('CK', 'Cook Islands'),
+	Array('CR', 'Costa Rica'),
+	Array('CI', 'Cote D\'Ivoire'),
+	Array('HR', 'Croatia'),
+	Array('CU', 'Cuba'),
+	Array('CY', 'Cyprus'),
+	Array('CZ', 'Czech Republic'),
+	Array('DK', 'Denmark'),
+	Array('DJ', 'Djibouti'),
+	Array('DM', 'Dominica'),
+	Array('DO', 'Dominican Republic'),
+	Array('TP', 'East Timor'),
+	Array('EC', 'Ecuador'),
+	Array('EG', 'Egypt'),
+	Array('SV', 'El Salvador'),
+	Array('GQ', 'Equatorial Guinea'),
+	Array('ER', 'Eritrea'),
+	Array('EE', 'Estonia'),
+	Array('ET', 'Ethiopia'),
+	Array('FK', 'Falkland Islands (Malvinas)'),
+	Array('FO', 'Faroe Islands'),
+	Array('FJ', 'Fiji'),
+	Array('FI', 'Finland'),
+	Array('FR', 'France'),
+	Array('FX', 'France, Metropolitan'),
+	Array('GF', 'French Guiana'),
+	Array('PF', 'French Polynesia'),
+	Array('TF', 'French Southern Territories'),
+	Array('GA', 'Gabon'),
+	Array('GM', 'Gambia'),
+	Array('GE', 'Georgia'),
+	Array('DE', 'Germany'),
+	Array('GH', 'Ghana'),
+	Array('GI', 'Gibraltar'),
+	Array('GR', 'Greece'),
+	Array('GL', 'Greenland'),
+	Array('GD', 'Grenada'),
+	Array('GP', 'Guadeloupe'),
+	Array('GU', 'Guam'),
+	Array('GT', 'Guatemala'),
+	Array('GN', 'Guinea'),
+	Array('GW', 'Guinea-Bissau'),
+	Array('GY', 'Guyana'),
+	Array('HT', 'Haiti'),
+	Array('HM', 'Heard and Mc Donald Islands'),
+	Array('HN', 'Honduras'),
+	Array('HK', 'Hong Kong'),
+	Array('HU', 'Hungary'),
+	Array('IS', 'Iceland'),
+	Array('IN', 'India'),
+	Array('ID', 'Indonesia'),
+	Array('IR', 'Iran'),
+	Array('IQ', 'Iraq'),
+	Array('IE', 'Ireland'),
+	Array('IL', 'Israel'),
+	Array('IT', 'Italy'),
+	Array('JM', 'Jamaica'),
+	Array('JP', 'Japan'),
+	Array('JO', 'Jordan'),
+	Array('KZ', 'Kazakhstan'),
+	Array('KE', 'Kenya'),
+	Array('KI', 'Kiribati'),
+	Array('KP', 'Korea, Democratic Peoples Republic of'),
+	Array('KR', 'Korea, Republic of'),
+	Array('KW', 'Kuwait'),
+	Array('KG', 'Kyrgyzstan'),
+	Array('LA', 'Lao Peoples Democratic Republic'),
+	Array('LV', 'Latvia'),
+	Array('LB', 'Lebanon'),
+	Array('LS', 'Lesotho'),
+	Array('LR', 'Liberia'),
+	Array('LY', 'Libyan Arab Jamahiriya'),
+	Array('LI', 'Liechtenstein'),
+	Array('LT', 'Lithuania'),
+	Array('LU', 'Luxembourg'),
+	Array('MO', 'Macau'),
+	Array('MK', 'Macedonia'),
+	Array('MG', 'Madagascar'),
+	Array('MW', 'Malawi'),
+	Array('MY', 'Malaysia'),
+	Array('MV', 'Maldives'),
+	Array('ML', 'Mali'),
+	Array('MT', 'Malta'),
+	Array('MH', 'Marshall Islands'),
+	Array('MQ', 'Martinique'),
+	Array('MR', 'Mauritania'),
+	Array('MU', 'Mauritius'),
+	Array('YT', 'Mayotte'),
+	Array('MX', 'Mexico'),
+	Array('FM', 'Micronesia'),
+	Array('MD', 'Moldova'),
+	Array('MC', 'Monaco'),
+	Array('MN', 'Mongolia'),
+	Array('MS', 'Montserrat'),
+	Array('MA', 'Morocco'),
+	Array('MZ', 'Mozambique'),
+	Array('MM', 'Myanmar'),
+	Array('NA', 'Namibia'),
+	Array('NR', 'Nauru'),
+	Array('NP', 'Nepal'),
+	Array('NL', 'Netherlands'),
+	Array('AN', 'Netherlands Antilles'),
+	Array('NC', 'New Caledonia'),
+	Array('NZ', 'New zealand'),
+	Array('NI', 'Nicaragua'),
+	Array('NE', 'Niger'),
+	Array('NG', 'Nigeria'),
+	Array('NU', 'Niue'),
+	Array('NF', 'Norfolk Island'),
+	Array('MP', 'Northern Mariana Islands'),
+	Array('NO', 'Norway'),
+	Array('OM', 'Oman'),
+	Array('PK', 'Pakistan'),
+	Array('PW', 'Palau'),
+	Array('PA', 'Panama'),
+	Array('PG', 'Papua New Guinea'),
+	Array('PY', 'Paraguay'),
+	Array('PE', 'Peru'),
+	Array('PH', 'Philippines'),
+	Array('PN', 'Pitcairn'),
+	Array('PL', 'Poland'),
+	Array('PT', 'Portugal'),
+	Array('PR', 'Puerto Rico'),
+	Array('QA', 'Qatar'),
+	Array('RE', 'Reunion'),
+	Array('RO', 'Romania'),
+	Array('RU', 'Russian Federation'),
+	Array('RW', 'Rwanda'),
+	Array('SH', 'St. Helena'),
+	Array('KN', 'Saint Iitts and Nevis'),
+	Array('LC', 'Saint Lucia'),
+	Array('PM', 'St. Pierre and Miquelon'),
+	Array('VC', 'Saint Vincent and the Grenadines'),
+	Array('WS', 'Samoa'),
+	Array('SM', 'San Marino'),
+	Array('ST', 'Sao Tome and Principe'),
+	Array('SA', 'Saudi Arabia'),
+	Array('SN', 'Senegal'),
+	Array('SC', 'Seychelles'),
+	Array('SL', 'Sierra Leone'),
+	Array('SG', 'Singapore'),
+	Array('SK', 'Slovakia'),
+	Array('SI', 'Slovenia'),
+	Array('SB', 'Solomon Islands'),
+	Array('SO', 'Somalia'),
+	Array('ZA', 'South Africa'),
+	Array('GS', 'South Georgia and the South Sandwich Islands'),
+	Array('ES', 'Spain'),
+	Array('LK', 'Sri Lanka'),
+	Array('SD', 'Sudan'),
+	Array('SR', 'Suriname'),
+	Array('SJ', 'Svalbard and Jan Mayen Islands'),
+	Array('SZ', 'Swaziland'),
+	Array('SE', 'Sweden'),
+	Array('CH', 'Switzerland'),
+	Array('SY', 'Syrian Arab Republic'),
+	Array('TW', 'Taiwana'),
+	Array('TJ', 'Tajikistan'),
+	Array('TZ', 'Tanzania'),
+	Array('TH', 'Thailand'),
+	Array('TG', 'Togo'),
+	Array('TK', 'Tokelau'),
+	Array('TO', 'Tonga'),
+	Array('TT', 'Trinidad and Tobago'),
+	Array('TN', 'Tunisia'),
+	Array('TR', 'Turkey'),
+	Array('TM', 'Turkmenistan'),
+	Array('TC', 'Turks and Caicos Islands'),
+	Array('TV', 'Tuvalu'),
+	Array('UG', 'Uganda'),
+	Array('UA', 'Ukraine'),
+	Array('AE', 'United Arab Emirates'),
+	Array('UK', 'United Kingdom'),
+	Array('UM', 'United States Minor Outlying Islands'),
+	Array('UY', 'Uruguay'),
+	Array('UZ', 'Uzbekistan'),
+	Array('VU', 'Vanuatu'),
+	Array('VA', 'Vatican City State'),
+	Array('VE', 'Venezuela'),
+	Array('VN', 'Vietnam'),
+	Array('VG', 'Virgin islands (British)'),
+	Array('VI', 'Virgin islands (US)'),
+	Array('WF', 'Wallis and Futuna Islands'),
+	Array('EH', 'Western Sahara'),
+	Array('YE', 'Yemen'),
+	Array('YU', 'Yugoslavia'),
+	Array('ZR', 'Zaire'),
+	Array('ZM', 'Zambia'),
+	Array('ZW', 'Zimbabwe')
+);
+
+$_vilw_states = Array(
+	Array("AL", "Alabama"),
+	Array("AK", "Alaska"),
+	Array("AZ", "Arizona"),
+	Array("AR", "Arkansas"),
+	Array("CA", "California"),
+	Array("CO", "Colorado"),
+	Array("CT", "Connecticut"),
+	Array("DE", "Delaware"),
+	Array("FL", "Florida"),
+	Array("GA", "Georgia"),
+	Array("HI", "Hawaii"),
+	Array("ID", "Idaho"),
+	Array("IL", "Illinois"),
+	Array("IN", "Indiana"),
+	Array("IA", "Iowa"),
+	Array("KS", "Kansas"),
+	Array("KY", "Kentucky"),
+	Array("LA", "Louisiana"),
+	Array("ME", "Maine"),
+	Array("MD", "Maryland"),
+	Array("MA", "Massachusetts"),
+	Array("MI", "Michigan"),
+	Array("MN", "Minnesota"),
+	Array("MS", "Mississippi"),
+	Array("MO", "Missouri"),
+	Array("MT", "Montana"),
+	Array("NE", "Nebraksa"),
+	Array("NV", "Nevada"),
+	Array("NC", "North Carolina"),
+	Array("ND", "North Dakota"),
+	Array("NH", "New Hampshire"),
+	Array("NJ", "New Jersey"),
+	Array("NM", "New Mexico"),
+	Array("NY", "New York"),
+	Array("OH", "Ohio"),
+	Array("OK", "Oklahoma"),
+	Array("OR", "Oregon"),
+	Array("PA", "Pennsylvania"),
+	Array("RI", "Rhode Island"),
+	Array("SC", "South Carolina"),
+	Array("SD", "South Dakota"),
+	Array("TN", "Tennessee"),
+	Array("TX", "Texas"),
+	Array("UT", "Utah"),
+	Array("VT", "Vermont"),
+	Array("VA", "Virginia"),
+	Array("WA", "Washington"),
+	Array("DC", "Washington, DC"),
+	Array("WV", "West Virginia"),
+	Array("WI", "Wisconsin"),
+	Array("WY", "Wyoming")
+);
+
+// HTML Functions
+function vilw_input($inputname, $inputsize = 30, $value = "", $extra = "") {
+	if (!$value) {
+		$value = $GLOBALS[$inputname];
+	}
+	print "<input size=\"$inputsize\" name=\"" . htmlspecialchars($inputname) . "\" value=\"" . htmlspecialchars($value) . "\" $extra>";
+}
+
+function vilw_hidden($inputname, $value = "") {
+	if (!$value) {
+		$value = $GLOBALS[$inputname];
+	}
+	print "<input type=hidden name=\"" . htmlspecialchars($inputname) . "\" value=\"" . htmlspecialchars($value) . "\">\n";
+}
+
+function vilw_textarea($inputname, $rows = 5, $cols = 70, $value = "", $extra = "") {
+	if (!$value) {
+		$value = $GLOBALS[$inputname];
+	}
+	print "<textarea rows=\"$rows\" cols=\"$cols\" name=\"" . htmlspecialchars($inputname) . "\" $extra>" . htmlspecialchars($value) . "</textarea>";
+}
+
+function vilw_checkbox($inputname, $value = "") {
+	if (!strlen($value)) {
+		$value = $GLOBALS[$inputname];
+	}
+	print "<input name=\"$inputname\" type=\"checkbox\" value=1 ". ($value ? " checked"  : "") .">";
+	
+}
+
+function vilw_select($inputname, $values, $default = "", $extra = "", $title = "", $notitle = false) {
+	if (!$default) {
+		if (isset($GLOBALS[$inputname])) {
+			$default = $GLOBALS[$inputname];
+		}
+	}
+
+	print "<select name=\"" . htmlspecialchars($inputname) . "\" $extra>\n";
+
+	if ($title) {
+		$c = strtolower(substr($title, 0, 1));
+		if ($c == "a" || $c == "e" || $c == "i" || $c == "o" || $c == "u") {
+			$title = "an $title";
+		} else {
+			$title = "a $title";
+		}
+		print "<option value=\"\">Select $title</option>\n";
+	} else if (!$notitle) {
+		print "<option value=\"\">Select An Option</option>\n";
+	}
+
+	reset($values);
+	while ($cur = current($values)) {
+		if (is_array($cur)) {
+			if ($default == $cur[0]) {
+				$sel = " selected";
+			} else {
+				$sel = "";
+			}
+			print "<option value=\"" . htmlspecialchars($cur[0]) . "\"$sel>" . htmlspecialchars($cur[1]) . "</option>\n";
+		} else {
+			if ($default == $cur) {
+				$sel = " selected";
+			} else {
+				$sel = "";
+			}
+			print "<option$sel>" . htmlspecialchars($cur) . "</option>\n";
+		}
+		next ($values);
+	}
+	print "</select>\n";
+}
+
+function vilw_jscript_array($array, $col = 0) {
+	print "Array(";
+	while($c = current($array)) {
+		if (is_array($c)) {
+			print "'" . addslashes($c[$col]) . "'";
+		} else {
+			print "'" . addslashes($c) . "'";
+		}
+		if (next($array)) {
+			print ", ";
+		}
+	}
+	print ")";
+}
+
+// Date Selectors
+function vilw_monthselect($name, $selected = "", $extra = "") {
+	global $_vilw_months;
+	vilw_select($name, $_vilw_months, $selected, $extra, "", true);
+}
+
+function vilw_dayselect($name, $selected = "", $extra = "") {
+	global $_vilw_days;
+	vilw_select($name, $_vilw_days, $selected, $extra, "", true);
+}
+
+function vilw_yearselect($name, $numyears, $startyear = "", $selected = "", $extra = "") {
+	$years = Array();
+	if(!$startyear) {
+		$curryear = Date("Y") + 0;
+	}
+	else {
+		$curryear = $startyear;
+	}
+	for($i = 0; $i < $numyears; $i++) {
+		$years[] = $curryear++;
+	}
+	
+	vilw_select($name, $years, $selected, $extra, "", true);
+}
+
+// State and Country Selectors
+function vilw_stateselect($name = "state", $selected = "", $extra = "") {
+	global $_vilw_states;
+
+	if (!$selected) {
+		$selected = $GLOBALS[$name];
+	}
+	vilw_statecountryselect($name, $selected, $_vilw_states, "State", $extra);
+}
+
+function vilw_countryselect($name = "country", $selected = "", $extra = "") {
+	global $_vilw_countries;
+
+	if (!$selected) {
+		$selected = $GLOBALS[$name];
+	}
+	vilw_statecountryselect($name, $selected, $_vilw_countries, "Country", $extra);
+}
+function vilw_statecountryselect($name, $selected, $statecountry, $label, $extra = "")
+{
+        printf("<select name=\"%s\" $extra>\n", $name);
+	printf("<option value=\"\">Select a $label</option>\n");
+        for($i = 0; $i < count($statecountry); $i++)
+        {
+                if((strtolower($statecountry[$i][0]) == strtolower($selected)) || (strtolower(vilw_alphaonly($statecountry[$i][1])) == strtolower(vilw_alphaonly($selected))))
+                {
+                        $selstatus = " selected";
+                } else {
+                        $selstatus = "";
+                }
+                printf("<option value=\"%s\"%s>%s</option>\n", $statecountry[$i][0], $selstatus, $statecountry[$i][1]);
+        }
+        printf("</select>");
+}
+
+// SQL Functions
+function vilw_query($sql, $db = 0)
+{
+
+	if ($db) {
+		if(!$res = mysql_query($sql, $db))
+		{
+			printf("MySQL Error %s<br>SQL: %s<br>\n", mysql_error($db), $sql);
+			exit;
+		} else {
+			return $res;
+		}
+	} else {
+		if(!$res = mysql_query($sql))
+		{
+			printf("MySQL Error %s<br>\nSQL: %s<br>\n", mysql_error(), $sql);
+			exit;
+		} else {
+			return $res;
+		}
+	}
+}
+
+function vilw_connect($dbhost, $dbuser, $dbpass, $dbname = false)
+{
+	if (!$db = mysql_pconnect($dbhost,$dbuser,$dbpass))
+	{
+		printf("MySQL Error %s<br>\n", mysql_error());
+		exit;
+	}
+
+	if ($dbname) {
+		vilw_select_db($dbname, $db);
+	}
+
+	return $db;
+}
+
+function vilw_select_db($dbname, $db = 0)
+{
+	if ($db) {
+		if (!$res = mysql_select_db($dbname, $db))
+		{
+			printf("MySQL Error %s<br>\n", mysql_error($db));
+			exit;
+		}
+	} else {
+		if (!$res = mysql_select_db($dbname))
+		{
+			printf("MySQL Error %s<br>\n", mysql_error());
+			exit;
+		}
+	}
+	return $res;
+}
+
+// SQL Generation Functions
+function vilw_sql_select($ar, $table, $where = "") {
+	$sql = "select ";
+	reset($ar);
+	while($are = current($ar)) {
+		if (is_array($are)) {
+			$sql .= $are[0];
+		} else {
+			$sql .= $are;
+		}
+		if (next($ar)) {	
+			$sql .= ", ";
+		}
+	}
+	reset($ar);
+	$sql .= " from $table $where";
+
+	return $sql;
+}
+
+function vilw_sql_insert($ar, $table, $valar = false) {
+	return vilw_sql_ir($ar, $table, $valar, "insert");
+}
+
+function vilw_sql_replace($ar, $table, $valar = false) {
+	return vilw_sql_ir($ar, $table, $valar, "replace");
+}
+
+function vilw_sql_delete($table, $wherecl) {
+	return("delete from $table $wherecl");
+}
+
+
+function vilw_sql_ir($ar, $table, $valar = false, $type = "insert") {
+	$sql = "$type into $table (";
+	reset($ar);
+	while($are = current($ar)) {
+		if (is_array($are)) {
+			$sql .= $are[0];
+		} else {
+			$sql .= $are;
+		}
+		if (next($ar)) {	
+			$sql .= ", ";
+		}
+	}
+	reset($ar);
+	$sql .= ") values (";
+	if ($valar) {
+		reset($valar);
+	}
+	while($are = current($ar)) {
+		if (is_array($are)) {
+			$var = $are[0];
+		} else {
+			$var = $are;
+		}
+		if ($valar) {
+			$val = current($valar);
+			next($valar);
+		} else {
+			$val = $GLOBALS[$var];
+		}
+		$sql .= "'" . addslashes($val) . "'";
+		if (next($ar)) {	
+			$sql .= ", ";
+		}
+	}
+	$sql .= ")";
+	return $sql;
+}
+
+function vilw_sql_update($ar, $table, $wherecl, $valar = false) {
+	$sql = "update $table set ";
+	reset($ar);
+	if ($valar) {
+		reset($valar);
+	}
+
+	while($are = current($ar)) {
+		if (is_array($are)) {
+			$var = $are[0];
+		} else {
+			$var = $are;
+		}
+		if ($valar) {
+			$val = current($valar);
+			next($valar);
+		} else {
+			$val = $GLOBALS[$var];
+		}
+		$sql .= "$var='" . addslashes($val) . "'";
+		if (next($ar)) {	
+			$sql .= ", ";
+		}
+	}
+	if($wherecl) {
+		$sql .= " $wherecl";
+	}
+	reset($ar);
+	if ($valar) {
+		reset($valar);
+	}
+
+	return $sql;
+}
+
+function vilw_mysql_now($db = 0) {
+	if ($db) {
+		$res = vilw_query("select now()", $db);
+	} else {
+		$res = vilw_query("select now()");
+	}
+	$row = mysql_fetch_row($res);
+	return $row[0];
+}
+
+// Query Result Functions
+function vilw_result_array($res)
+{
+	$res_arr = Array();	
+
+	while($row = mysql_fetch_row($res)) {
+		if (count($row) > 1) {
+			$res_arr[] = $row;	
+		} else {
+			$res_arr[] = $row[0];
+		}
+	}
+	reset($res_arr);
+	
+	return $res_arr;
+}
+
+function vilw_result_globalize($ar, $row, $prefix = "") {
+	$i = 0;
+
+	while ($c = current($ar)) {
+		$GLOBALS[$prefix . $c] = $row[$i++];
+		next($ar);
+	}
+	
+	return $row;
+}
+
+function vilw_result_unglobalize($ar) {
+	reset($ar);
+	while($c = current($ar)) {
+		$GLOBALS[$c] = "";
+		next($ar);
+	}
+}
+
+function vilw_table_to_form($tbl_name, $omit_cols = "", $rowzeronames = true, $numcols = 0, $db = 0) {
+// Creates an html form based on the table structure
+	
+	global $VILW_FORM_SINGLECOL, $VILW_FORM_TWOCOL, $VILW_FORM_NOBREAK;
+
+	$column_properties = vilw_result_array(vilw_query("show columns from $tbl_name", $db));
+
+	$pretty_names = array();
+	if($rowzeronames) {
+		// row zero contains 'pretty' names for columns
+		$row = vilw_result_array(vilw_query("select * from $tbl_name where id=0"));
+		$row = $row[0];
+		reset($column_properties);
+		$i = 0;
+		while($col = current($column_properties)) {
+			$nice_names[$col[0]] = $row[$i++];
+			next($column_properties);
+		}
+	}
+
+	print "<table border=\"0\">\n";
+	reset($column_properties);
+	$i = 0;
+	while($col = current($column_properties)) {
+		if(($omit_cols) && (!vilw_lookup($omit_cols, $col[0], 0, 0))) {
+			if($rowzeronames) {
+				$nicename=$nice_names[$col[0]] . ":";
+			}
+			else {
+				$nicename= $col[0] . ":";
+			}
+			if(($i % $numcols) == 0) print "<tr>\n";
+			print "<td align=\"right\">\n";
+			print htmlspecialchars($nicename) . "\n";
+			print "</td>\n";
+			print "<td align=\"left\">\n";
+			vilw_input($col[0], 30);
+			print "</td>\n";
+			if(($i % $numcols) == ($numcols - 1)) print "<tr>\n";
+		}
+		$i++;
+		next($column_properties);
+	}
+	print "</table>\n";
+}
+
+function vilw_get_table_cols($tbl_name, $db = 0) {
+	return(vilw_fetchcol(vilw_result_array(vilw_query("show columns from $tbl_name", $db)), 0));
+}
+
+function vilw_csv_parse($file, $skip = 0) {
+	$f = fopen($file, "r");
+	if (!$f) {
+		return false;
+	}
+	
+	for ($in = true, $i = 1; $in && $i <= $skip; $i++ && $in = fgets($f));
+
+	$ar = Array();
+	while ($ar[] = fgetcsv($f, 10000));
+
+	return $ar;
+}
+
+function vilw_csv($ar, $res) {
+	header("Content-type: text/plain");
+	reset($ar);
+	while($are = current($ar)) {
+		if (is_array($are)) {
+			print "\"" . addslashes($are[1]) . "\"";
+		} else {
+			print "\"" . addslashes($are) . "\"";
+		}
+		if (next($ar)) {	
+			print ",";
+		}
+	}
+	reset($ar);
+	print "\n";
+	while($row = mysql_fetch_row($res)) {
+		reset($ar);
+		$i = 0;
+		while($are = current($ar)) {
+			print "\"" . addslashes(vilw_sanitizestring($row[$i++])) . "\"";
+			if (next($ar)) {	
+				print ",";
+			}
+		}
+		reset($ar);
+		print "\n";
+	}
+}
+
+
+// String Cleaning
+function vilw_sanitizestring($in) {
+	for ($i = 0; $i < strlen($in); $i++) {
+		$c = substr($in, $i, 1);
+		if (ord($c) >= 32 && ord($c) <= 126) {
+			$out .= $c;	
+		}
+	}
+
+	return $out;
+}
+
+function vilw_isalpha($in) {
+	for($i = 0; $i < strlen($in); $i++) {
+		$c = strtolower(substr($in, $i, 1));
+		if (ord($c) < ord('a') || ord($c) > ord('z')) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function vilw_isnumber($in) {
+	for($i = 0; $i < strlen($in); $i++) {
+		$c = strtolower(substr($in, $i, 1));
+		if (ord($c) < ord('0') || ord($c) > ord('9')) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function vilw_isalphanumeric($in) {
+	for($i = 0; $i < strlen($in); $i++) {
+		$c = strtolower(substr($in, $i, 1));
+		if (!vilw_isnumber($c) && !vilw_isalpha($c)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function vilw_alphaonly($in) {
+	for ($i = 0; $i < strlen($in); $i++) {
+		$c = strtolower(substr($in, $i, 1));
+		if (ord($c) >= ord('a') && ord($c) <= ord('z')) {
+			$out .= $c;	
+		}
+	}
+
+	return $out;
+}
+
+function vilw_normalizecard($cc) {
+	return addslashes(str_replace(" ", "", str_replace("-", "", $cc)));
+}
+
+function addcommas($s) {
+	// adds commas to a number string
+
+	$neg = (substr($s,0,1) == "-");
+	$tmpstr = removechars($s, ",-");	
+	$tmpstr2 = "";
+
+	$decpt = strpos($tmpstr, ".");
+	if(is_string ($decpt) && !$decpt) {
+		$decpt = strlen($tmpstr);
+	}
+	$predec = substr($tmpstr,0,$decpt);
+	$postdec = substr($tmpstr, $decpt+1, strlen($tmpstr));
+	
+	$n = strlen($predec);
+	for($i = 0; $i < $n; $i++) {
+		if(($i > 0) && ($i % 3 == 0)) {
+			$tmpstr2 = substr($predec, $n-$i-1, 1) . ',' . $tmpstr2;
+		} else {
+			$tmpstr2 = substr($predec, $n-$i-1, 1) . $tmpstr2;
+		}
+	}
+
+	$tmpstr = $tmpstr2;
+	if($postdec) {
+		$tmpstr .= "." . $postdec;
+	}
+	if($neg) {
+		$tmpstr = "-" . $tmpstr;
+	}
+	return($tmpstr);	
+}
+
+function adddecimalplaces($s,$n, $forcedec) {
+
+	$tmpstr = $s;
+
+	if($forcedec) {
+		$tmpstr = ((round($tmpstr*pow(10, $n)))/pow(10,$n)) . "";
+	}
+
+	$decpt = strpos($tmpstr, ".");
+	if(is_string ($decpt) && !$decpt) {
+		$tmpstr = $tmpstr . ".";
+		$decpt = strlen($tmpstr)-1;
+	}
+	$k = (strlen($tmpstr) - 1) - $decpt;
+	for($i=0; $i<($n-$k); $i++) {
+		$tmpstr .= "0";
+	}
+	return($tmpstr);
+}
+
+function removechars ($s, $badchar) {
+	$returnString = "";
+
+	for ($i = 0; $i < strlen($s); $i++)
+	{
+		$c = substr($s, $i, 1);
+		$res = strpos($badchar, $c);
+		if(is_string ($res) && !$res) {
+			$returnString .= $c;
+		}
+	}
+
+	return $returnString;
+}
+
+function iswhitespace($c) {
+
+	global $whitespace;
+	return(!(strpos($whitespace, $c) == false));
+}
+
+function isempty($s) {
+	return ($s == "");
+}
+
+function isblank ($s) {
+	if (isempty($s)) { return true; }
+
+	for ($i = 0; $i < strlen($s); $i++)
+	{
+		$c = substr(s, i, 1);
+
+		if (!iswhitespace($c)) {
+			return false;	
+		}
+	}
+
+	return true;
+}
+
+function isdigit ($c) {
+	return ((ord($c) >= ord("0")) && (ord($c) <= ord("9")));
+}
+
+function isnumber ($s) {
+	if(isblank($s)) { return false; }
+
+	for ($i = 0; $i < strlen($s); $i++)
+	{
+		$c = substr($s, i, 1);
+		if (!isdigit($c)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+function isfloat($s) {
+	$p = $s;
+	$slength = strlen($p);
+	$i=0;
+
+	if (isblank($s)) {
+		return false;
+	}
+
+	$p = removechars($p, '.,');
+
+	return isnumber($p);
+}
+
+function isdollaramount($s) {
+	$p = $s;
+	$slength = strlen($p);
+	$tmpstr = "";
+
+	if (isblank($s))	{
+		return false;
+	}
+
+	if(substr($p, 0, 1) == '-') {
+		$p = substr($p, 1);
+		$slength--;
+	}
+
+	if (substr($p, 0, 1) == '$') {
+		$p = substr($p, 1); 	
+		$slength--;
+	}
+
+	$p = removechars($p, ',');
+
+	return(isfloat($p));
+}
+
+function normalizedollaramount($s, $forcedec) {
+
+	$tmpstr = $s;
+
+	if($tmpstr == "") {
+		return($tmpstr);
+	}
+
+	if(isdollaramount($tmpstr)) {
+		$tmpstr = getfloatfromdollar($s);
+		$tmpstr = adddecimalplaces($tmpstr . "", 2, $forcedec);
+		$tmpstr = "$" . addcommas($tmpstr);
+		return($tmpstr);
+	}
+	else {
+		return(-1);
+	}
+}
+
+function getfloatfromdollar($s) {
+
+	if(!isdollaramount($s)) { return(-1); }
+	$p = $s;
+	$slength = strlen($p);
+	if (substr($p, 0, 1) == '-') {
+		$p = substr(p, 1);
+		$slength--;
+	}
+	if (substr($p, 0, 1) == '$') {
+		$p = substr($p, 1);
+		$slength--;
+	}
+
+	$p = removechars($p, ",");
+
+	return($p);
+}
+
+// Miscellaneous Functions
+function vilw_countto($end, $start = 0) {
+	$ar = Array();
+	for ($i = $start; $i <= $end; $i++) {
+		$ar[] = $i;
+	}
+	return $ar;
+}
+
+function vilw_mail($to, $subject, $mailbody, $mailhead, $from = "") {
+	chop($mailhead);
+	chop($mailhead);
+
+
+	$message = "$mailhead\nSubject: $subject\n\n$mailbody";
+	if ($from) {
+		$from = "-f $from";
+	}
+	$sendmail = popen("/usr/lib/sendmail $from $to", "w");
+	if ($sendmail) {
+		fputs($sendmail, $message);
+		return !(pclose($sendmail));
+	}
+	return false;
+}
+
+function vilw_check_referer($referer) {
+	$ref = getenv("HTTP_REFERER");
+
+	if (eregi(".*://([a-z\.]*)/.*", $ref, $regs)) {
+		$refhost =  $regs[1];
+	}
+
+	if (is_array($referer)) {
+		$refs = $referer;
+	} else {
+		$refs = Array($referer);
+	}
+
+	do
+	{
+		if (current($refs) == $refhost) {
+			return true;
+		}
+	}
+	while(next($refs));
+
+	return false;
+}
+
+function vilw_fetchcol($array, $col = 0) {
+	$myar = Array();
+	reset($array);
+	while ($c = current($array)) {
+		$myar[] = $c[$col];
+		next($array);
+	}
+	return $myar;
+}
+
+function vilw_state($code) {
+	global $_vilw_states;
+	return vilw_lookup($_vilw_states, $code);
+}
+
+function vilw_states() {
+	global $_vilw_states;
+	return $_vilw_states;
+}
+
+function vilw_country($code) {
+	global $_vilw_countries;
+	return vilw_lookup($_vilw_countries, $code);
+}
+
+function vilw_lookup($array, $key, $lcol = 0, $rcol = 1) {
+	if (is_array($key)) {
+		$myar = Array();
+		while (current($key)) {
+			$set = false;
+			reset($array);
+			while ($c = current($array)) {
+				if (current($key) == $c[$lcol]) {
+					$myar[] = $c[$rcol];
+					$set = true;
+				}
+				next($array);
+			}
+			if (!$set) {
+				$myar[] = "";
+			}
+			next($key);
+		}
+		return $myar;
+	} else {
+		reset($array);
+		while ($c = current($array)) {
+			if(is_array($c)) {
+				if ($key == $c[$lcol]) {
+					return $c[$rcol];
+				}
+			}
+			else {
+				if($key == $c) {
+					return($c);
+				}
+			}
+			next($array);
+		}
+	}
+}
+
+// Array Functions
+function vilw_array_sort($array) {
+	sort($array);
+	return $array;
+}
+
+function vilw_array_merge($array1, $array2) {
+	$myar = Array();
+
+	reset($array1);
+	reset($array2);
+
+	while ($c = current($array1)) {
+		$myar[] = Array($c, current($array2));
+		next($array1);
+		next($array2);
+	}
+	return $myar;
+}
+
+function vilw_array_fill($array, $value) {
+	// fills every element in an array with the same value (useful for initializing an aray)
+	reset($array);	
+	while($c = current($array)) {
+		$c = $value;
+		next($array);
+	}
+}
+
+function vilw_array_join($array1, $array2, $undup = true) {
+	$myar = Array();
+	reset($array1);
+	while ($c = current($array1)) {
+		$myar[] = $c;
+		next($array1);
+	}
+	reset($array1);
+	reset($array2);
+	while ($c = current($array2)) {
+		$myar[] = $c;
+		next($array2);
+	}
+	reset($array2);
+	return $undup ? vilw_array_undup($myar) : $myar;
+}
+
+function vilw_array_compare ($array1, $array2) {
+	if (!$array1) {
+		if (!$array2) {
+			return false;
+		} else {
+			return true;
+		}	
+	}
+
+	if (!is_array($array1) || !is_array($array2)) {
+		if (!is_array($array1) && !is_array($array2)) {
+			if ($array1 == $array2) {
+				return true;
+			}
+		}
+		return false;	
+	}
+
+	if (($c = count($array1)) != count($array2)) {
+		return false;
+	}
+
+	for ($i = 0; $i < $c; $i++) {
+		if (!vilw_array_compare($array1[$i], $array2[$i])) {
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+function vilw_array_col($array, $column = 0) {
+	reset($array);
+	$myar = Array();
+	while ($c = current($array)) {
+		$myar[] = $c[$column];
+		next($array);
+	}
+	return $myar;
+}
+
+function vilw_array_delete($array, $key) {
+	reset($array);
+	$myar = Array();
+	while($c = current($array)) {
+		if($c != $key) {
+			$myar[] = $c;
+		}
+		next($array);
+	}
+	return $myar;
+}
+
+function vilw_array_undup ($inar) {
+	$undup = Array();
+
+	$incp = $inar;
+
+	sort($incp);	
+	reset($incp);
+
+	$last = false;	
+	while(current($incp)) {
+		if (!is_array($incp)) {
+			if (!$last || $last != current($incp)) {
+				$undup[] = current($incp);
+				$last = current($incp);
+			}
+		} else {
+			if (!$last || !vilw_array_compare($last, current($incp))) {
+				$undup[] = current($incp);
+				$last = current($incp);
+			}
+		}
+		next($incp);	
+	}
+
+	return $undup;
+}
+
+function vilw_filter($array, $key, $col = 0) {
+	reset($array);
+	$myar = Array();
+	while ($c = current($array)) {
+		if (vilw_array_compare($c[$col], $key)) {
+			$myar[] = $c;
+		}
+		next($array);
+	}
+	return $myar;
+}
+
+function vilw_unix_timestamp($date)
+{
+	if(ereg("-", $date))
+	{
+        	$ln = strlen($date);
+        	if($ln == strlen("0000-00-00 00:00:00"))
+		{
+                	$ar = explode(" ", $date);
+                	$ds = $ar[0];
+                	$ts = $ar[1];
+		} else if ($ln == strlen("0000-00-00")) {
+                	$ds = $date;
+                	$ts = "00:00:00";
+		} else {
+			return 0;
+		}
+       		 $days = explode("-", $ds);
+        	$hrs = explode(":", $ts);
+	} else {
+                ereg("(....)(..)(..)(..)(..)(..)", $date, $regs);
+		$days[0] = $regs[1];
+		$days[1] = $regs[2];
+		$days[2] = $regs[3];
+		$hrs[0] = $regs[4];
+		$hrs[1] = $regs[5];
+		$hrs[2] = $regs[6];
+
+	}
+
+        return mktime($hrs[0], $hrs[1], $hrs[2], $days[1], $days[2], $days[0]);
+}
+
+function vilw_mysql_unix_timestamp($date, $db = 0) {
+	if ($db) {
+		$res = vilw_query("select unix_timestamp('" . addslashes($date) . "')", $db);
+	} else {
+		$res = vilw_query("select unix_timestamp('" . addslashes($date) . "')");
+	}
+	$row = mysql_fetch_row($res);
+	return $row[0];
+}
+
+function vilw_get_resized_image_contents($contents, $width, $height, $foreceddimensions = false) {
+
+	$tmpfile = tempnam("/tmp", "tmpimg");
+	$fh = fopen($tmpfile, "w");
+	fwrite($fh, $contents, strlen($contents));
+	fclose($fh);
+	$newcontents = vilw_get_resized_imagefile_contents($tmpfile, $width, $height, $forceddimensions);
+	unlink($tmpfile);
+
+	return($newcontents);
+}
+
+function vilw_get_resized_imagefile_contents($image_file, $width, $height, $foreceddimensions = false) {
+
+	global $VILW_CONVERT_PATH;
+
+        $destfile = tempnam("/tmp", "img");
+        $execstring = $VILW_CONVERT_PATH . " -geometry " . $width . "x" .
+$height;
+        if($forcedimensions != 0) {
+                $execstring .= "!";
+        }
+        $execstring .= " " . $image_file . " " . $destfile;
+        $res = exec($execstring);
+
+        $fh = fopen($destfile, "r");
+        $newcontents = fread($fh, filesize($destfile));
+        fclose($fh);   
+
+	unlink($destfile);
+
+	return($newcontents);
+}
+
+}
+
+?>

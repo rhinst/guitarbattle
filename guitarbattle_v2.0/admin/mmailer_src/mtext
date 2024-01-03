@@ -1,0 +1,33 @@
+Subject: cpwright.com
+To: %email%
+Content-Type: text/html; charset="iso-8859-1"
+
+<html>
+<body bgcolor=white>
+
+<font face="Arial,Helvetica">
+<center><i>We'll have to make an smtpserv feature to block our own mass-mailer in case Graz wants more of his evil no optout forms (or even worse ones that ignore it on purpose).</i></center><br><br>
+
+<table align=center><tr valign=center><td><a href="http://cpwright.com/"><img src="http://cpwright.com/images/logo.jpg" border=0></a></td><td><a href="http://cpwright.com/flag.php?id=4"><img src="http://cpwright.com/images/flags.php?id=8" border=0></a></td></tr></table>
+
+Dear %name%,<br><br>
+
+<font size="+2">Programming</font>
+<div align=justify>cpwright.com will perform custom programming to suit your needs.  We have expert knowledge with a variety of web based technologies including HTML, CGI, PHP, and JavaScript.  Aside from web based technologies we have extensive experience creating UNIX servers using C or C++.  We can maintain, upgrade, or create programs in other programming languages including Perl and UNIX shell scripts.  One of our strongest points is our in-depth knowledge of SQL databases.  If you need a custom application chances are we can create it for you.</div><br>
+
+<div align=justify>If you have an existing application we can work with you to update it, or if need be to replace it with a more up to date architecture.  We can do audits on existing code and find bugs as well as potential security holes.</div><br>
+
+<div align=justify>If you are developing a new application we can provide help with questions like:  "Can this be done?", "Should this be done", "How can this be done?", "Why doesn't this work?".  We can help you along the way during any stage of development.</div><br>
+
+<font size="+2">System Administration</font>
+<div align=justify>cpwright.com has experience installing and maintaining UNIX and Windows networks.  In addition we can deploy and maintain Cisco routers and switches.  We have deployed UNIX distributions including RedHat Linux, Slackware Linux, Solaris, and FreeBSD.  We can install or upgrade many UNIX components including Apache, SSL, PHP, MySQL, Sendmail, POP3, IMAP, Samba, and BIND.  We have experience in production environments with tens of thousands of users.  We will perform your installation or upgrade with a minimum of downtime.</div><br>
+
+<font size="+2">Web-Site Design</font>
+<div align=justify>If you are looking to put your company on the web, cpwright.com can help.  We have graphic designers and HTML experts who can create a dynamic site that will draw in customers, allow them to quickly find information, make purchasing decisions, and complete the sale quickly and easily.</div><br>
+
+<div align=justify>We can update your existing website.  Some popular updates are new graphics or using the old graphics more effectively to create a consistent look and feel.  In addition we can provide you with new Macromedia Flash content.  Flash can provide a more rich and interactive experience for your customers.</div><br>
+
+
+<table align=center><tr valign=center><td><a href="http://cpwright.com/"><img src="http://cpwright.com/images/logo.jpg" border=0></a></td><td><a href="http://cpwright.com/flag.php?id=4"><img src="http://cpwright.com/images/flags.php?id=8" border=0></a></td></tr></table>
+
+</body></html>

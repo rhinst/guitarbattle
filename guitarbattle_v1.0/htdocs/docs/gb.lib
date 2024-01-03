@@ -1,0 +1,78 @@
+<?
+if(!(isset($_GB_LIB))) {
+	$_GB_LIB = 1;
+
+
+include('vilw.lib');
+include('data.php');
+
+
+$news_cols = Array("id", "ts", "news");
+$webmaster_address = "rlarino@villagenet.com";
+$info_address = "rlarino@villagenet.com";
+
+function gb_mail($to, $subject, $message, $from_addr, $from_name = "") {
+	$fd = fsockopen("hinst.net", 25);
+
+	if(!$fd) {
+		return(false);
+	}
+
+	fputs($fd, "HELO hinst.net\r\n");
+	fputs($fd, "MAIL FROM: " . $from_addr . "\r\n");
+	fputs($fd, "RCPT TO: " . $to . "\r\n");
+	fputs($fd, "DATA\r\n");
+	if($from_name) {
+		fputs($fd, "From: " . $from_name . " <" . $from_addr . ">\r\n");
+	}
+	else {
+		fputs($fd, "From: " . $from_addr . "\r\n");
+	}
+	fputs($fd, "Subject: ". $subject . "\r\n");
+	fputs($fd, "\r\n");
+	fputs($fd, str_replace("\n.", "\n..", $message) . "\r\n");
+	fputs($fd, ".\r\n");
+	fputs($fd, "QUIT");
+
+	fclose($fd);
+
+	return(true);
+}
+
+function readable_size($bytes) {
+       	$amount = $bytes;
+       	$suffix = "bytes";
+       	if($amount >= 1024) {
+               	$suffix = "KB";
+               	$amount = $amount / 1024;
+       	}
+
+       	if($amount >= 1024) {
+               	$suffix = "MB";
+               	$amount = $amount / 1024;
+       	}
+
+       	$amount = sprintf("%.2f", $amount);
+
+       	return($amount . " "  . $suffix);
+}
+
+	//Start The Session and check if logged in.
+	session_start();
+	$session_check = session_is_registered('guitar_battle_login');
+	if($session_check) {
+		$login_check = mysql_fetch_row(mysql_query("select count(id) from users where username='$current_user' and password='" . base64_encode($current_password) . "'"));
+		if($login_check[0] == 1) {
+			$login = 1;
+		}
+		else {
+			$login = 0;
+		}
+	}
+	else {
+		$login = 0;
+	}
+
+}
+
+?>

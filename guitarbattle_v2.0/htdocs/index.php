@@ -1,0 +1,34 @@
+<?
+
+switch($action) {
+case "poll_vote":
+	if(session_is_registered("authenticated_user") && (!poll_already_voted($poll_id, $authenticated_user))) {
+		$username = $authenticated_user;
+		$choice = $poll_choice;
+		vilw_query(vilw_sql_insert($poll_answers_cols, $poll_answers_table));
+		vilw_query("update poll_questions set votes_" . $poll_choice . " = votes_" . $poll_choice . " + 1 where id='" . $poll_id . "'");
+	}
+	break;
+case "comment":
+	if($comment) {
+		$username = $authenticated_user;
+		$timestamp = date("YmdHis");
+		$battle_id = 0;
+		vilw_query(vilw_sql_insert($comments_cols, $comments_table));
+	}
+	header("Location: " . $PHP_SELF);
+	break;
+}
+
+unset($poll_info);
+if(session_is_registered("authenticated_user")) {
+	$already_voted = poll_already_voted($poll_id, $authenticated_user);
+	$poll_info = get_current_poll();
+	vilw_result_globalize($poll_questions_cols, $poll_info, "poll_");
+}
+
+
+include('templates/general/header.inc');
+include('templates/home/home.inc');
+include('templates/general/footer.inc'); 
+?>
